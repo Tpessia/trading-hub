@@ -1,0 +1,16 @@
+> Start
+
+npx -p @nestjs/cli nest new project-name
+
+or
+
+npm i -g @nestjs/cli
+nest new project-name
+
+> Swagger
+
+npm install --save @nestjs/swagger swagger-ui-express
+
+> Hot Reload
+
+nest start --watch
