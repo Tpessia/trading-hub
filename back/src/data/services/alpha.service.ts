@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { AlphaInterval } from 'src/models/alpha/AlphaConfig';
-import AlphaData, { AlphaApiData, AlphaApiResponse } from 'src/models/alpha/AlphaData';
+import { AlphaInterval } from 'src/data/models/alpha/AlphaConfig';
+import AlphaData, { AlphaApiData, AlphaApiResponse } from 'src/data/models/alpha/AlphaData';
 import axiosService from './axios.service';
 
 @Injectable()

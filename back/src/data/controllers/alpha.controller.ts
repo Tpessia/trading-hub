@@ -1,7 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiQuery } from '@nestjs/swagger';
-import { AlphaInterval } from 'src/models/alpha/AlphaConfig';
-import { AlphaService } from 'src/services/alpha.service';
+import { AlphaInterval } from 'src/data/models/alpha/AlphaConfig';
+import { AlphaService } from 'src/data/services/alpha.service';
 import YahooData from '../models/yahoo/YahooData';
 
 @Controller('alpha')

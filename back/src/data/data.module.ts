@@ -15,4 +15,4 @@ import { YahooService } from './services/yahoo.service';
     AlphaService
   ],
 })
-export class AppModule {}
+export class DataModule {}

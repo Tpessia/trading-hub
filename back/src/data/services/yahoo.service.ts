@@ -4,7 +4,7 @@ import axiosService from './axios.service';
 import { StrictEnumDictionary } from '../models/Dictionary';
 import { YahooEvent, YahooInterval } from '../models/yahoo/YahooConfig';
 import YahooData, { YahooHistApiResponse } from '../models/yahoo/YahooData';
-import { getTimeGMT } from '../utils/date.utils';
+import { getTimeGMT } from '../../utils/date.utils';
 
 @Injectable()
 export class YahooService {
