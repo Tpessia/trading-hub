@@ -1,1 +1,0 @@
-export const getTimeGMT =  (date: Date) => date.getTime() / 1000 - date.getTimezoneOffset() * 60;

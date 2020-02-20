@@ -1,28 +1,73 @@
 import { Injectable } from '@nestjs/common';
 import { AlphaInterval } from 'src/data/models/alpha/AlphaConfig';
-import AlphaData, { AlphaApiData, AlphaApiResponse } from 'src/data/models/alpha/AlphaData';
-import axiosService from './axios.service';
+import IAlphaData from 'src/data/models/alpha/IAlphaData';
+import axiosService from '../../common/services/axios.service';
+import IAlphaApiResponse, { IAlphaApiData } from '../models/alpha/IAlphaApiResponse';
+import IStockResult from '../models/common/IStockResult';
+import { ValidatorService } from './validator.service';
+import { pick } from 'lodash';
 
 @Injectable()
 export class AlphaService {
+    constructor(private readonly validator: ValidatorService) { }
+    
     private readonly apiKey = 'WU8VTI1IRD58LFV5';
 
-    getHistorical = async (ticker: string, start: Date, end: Date, interval: AlphaInterval): Promise<AlphaData[]> => {
-        let result = (await axiosService.get<AlphaApiResponse>(`https://www.alphavantage.co/query?apikey=${this.apiKey}&function=${AlphaInterval.Daily}&symbol=${ticker}.SAO&datatype=json&outputsize=full`)).data;
-        return Object.entries(result['Time Series (Daily)']).map(e => this.mapHistData(e[0], e[1]));
+    getHistorical = async (ticker: string, start: Date, end: Date, interval: AlphaInterval): Promise<IStockResult<IAlphaData>> => {
+        const apiResult = (await axiosService.get<IAlphaApiResponse>(`https://www.alphavantage.co/query?apikey=${this.apiKey}&function=${AlphaInterval.Daily}&symbol=${ticker}.SAO&datatype=json&outputsize=full`)).data
+        
+        const filterResult = this.filterDate(apiResult, start, end)
+
+        const dataResult = Object.entries(filterResult['Time Series (Daily)']).map(e => this.mapHistData(e[0], e[1]))
+
+        const result = this.validator.validateResponse<IAlphaData>(dataResult)
+
+        return result
     }
 
-    private mapHistData(date: string, data: AlphaApiData): AlphaData {
+    private filterDate(apiResult: IAlphaApiResponse, start: Date, end: Date): IAlphaApiResponse {
+        const include = Object.entries(apiResult['Time Series (Daily)']).map(e => {
+            const date = new Date(`${e[0]}T00:00:00`)
+
+            if (date.getTime() >= start.getTime() && date.getTime() <= end.getTime())
+                return e[0]
+            
+            return null
+        })
+        .filter(e => e !== null)
+        .reverse()
+
         return {
-            Date: new Date(`${date}T00:00:00`),
-            Open: +data['1. open'],
-            High: +data['2. high'],
-            Low: +data['3. low'],
-            Close: +data['4. close'],
-            AdjClose: +data['5. adjusted close'],
-            Volume: +data['6. volume'],
-            DividendAmount: +data['7. dividend amount'],
-            SplitCoefficient: +data['8. split coefficient']
+            ...apiResult,
+            'Time Series (Daily)': pick(apiResult['Time Series (Daily)'], include)
+        }
+    }
+
+    private mapHistData(dateStr: string, data: IAlphaApiData): IAlphaData {
+        const volume = +data['6. volume']
+        const open = +data['1. open']
+        const high = +data['2. high']
+        const low = +data['3. low']
+        const close = +data['4. close']
+        const adjClose = +data['5. adjusted close']
+        const dividendAmount = +data['7. dividend amount']
+        const splitCoefficient = +data['8. split coefficient']
+
+        const ratio = adjClose / close
+
+        return {
+            Date: new Date(`${dateStr}T00:00:00Z`),
+            Volume: volume,
+            Open: open,
+            High: high,
+            Low: low,
+            Close: close,
+            AdjOpen: open * ratio,
+            AdjHigh: high * ratio,
+            AdjLow: low * ratio,
+            AdjClose: adjClose,
+            DividendAmount: dividendAmount,
+            SplitCoefficient: splitCoefficient
         }
     }
 }

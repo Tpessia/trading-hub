@@ -5,13 +5,13 @@ WORKDIR /app
 COPY . .
 RUN npm install
 
-RUN npx -p @nestjs/cli nest build
+RUN npm run build
 
 # Run
 FROM node:10-alpine AS base
 WORKDIR /app
 
-COPY --from=builder /app/dist .
+COPY --from=builder /app/build .
 
-EXPOSE 3001
-CMD ["npm","run","start:prod"]
+EXPOSE 3000
+CMD ["npm","start"]

@@ -6,13 +6,14 @@ async function bootstrap() {
   // Instanciate App
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
+  // app.useGlobalFilters(new AllExceptionsFilter());
 
-  // Swagger
+  // Global Swagger
   const options = new DocumentBuilder()
     .setTitle('Trading Hub')
     .setDescription('Trading Hub')
     .setVersion('1.0')
-    // .addTag('yahoo')
+    // .addTag('data')
     .build();
   const document = SwaggerModule.createDocument(app, options, {
     // include: [AppModule]
