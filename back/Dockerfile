@@ -11,7 +11,7 @@ RUN npx -p @nestjs/cli nest build
 FROM node:10-alpine AS base
 WORKDIR /app
 
-COPY --from=builder /app/dist .
+COPY --from=build /app/dist .
 
 EXPOSE 3001
 CMD ["npm","run","start:prod"]

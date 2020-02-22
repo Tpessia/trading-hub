@@ -10,6 +10,18 @@ import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/theme-monokai";
 
+function changeUrlPort(url: string, port: string) {
+	const uri = new URL(url)
+	uri.port = port
+	return uri.toString()
+}
+
+function changeUrlProtocol(url: string, protocol: string) {
+	const uri = new URL(url)
+	uri.protocol = protocol
+	return uri.toString()
+} 
+
 interface Props {
 
 }
@@ -37,7 +49,7 @@ export default class Trading extends React.Component<Props, State> {
         result: null
     }
 
-    readonly gateway = 'ws://localhost:3001/trading'
+    readonly gateway = `${changeUrlProtocol(changeUrlPort(window.location.origin,'3001'),'ws')}trading`
 
     componentDidUpdate() {
         (window as any).server = this.state.server;

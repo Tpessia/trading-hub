@@ -11,7 +11,7 @@ RUN npm run build
 FROM node:10-alpine AS base
 WORKDIR /app
 
-COPY --from=builder /app/build .
+COPY --from=build /app/build .
 
 EXPOSE 3000
 CMD ["npm","start"]
