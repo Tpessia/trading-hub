@@ -1,38 +1,24 @@
 import React from 'react';
-import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
-import './App.css';
-import Trading from './modules/trading/scenes/Trading';
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import AppLayout from './modules/layout/AppLayout';
+import Simulator from './modules/trading/scenes/Simulator';
 
-const App: React.FC = () => {
-  return (
-    <div className="App">
-      <Router>
-        <div>
-          <nav>
-            <ul>
-              <li>
-                <Link to="/">Home</Link>
-              </li>
-              <li>
-                <Link to="/about">About</Link>
-              </li>
-              <li>
-                <Link to="/users">Users</Link>
-              </li>
-            </ul>
-          </nav>
-
-          {/* A <Switch> looks through its children <Route>s and
-            renders the first one that matches the current URL. */}
-          <Switch>
-            <Route path="/">
-              <Trading />
-            </Route>
-          </Switch>
-        </div>
-      </Router>
-    </div>
-  );
+export default class App extends React.Component {
+  render() {
+    return (
+      <div className="App">
+        <Router>
+          <Route path="/">
+            <AppLayout>
+              <Switch>
+                <Route path="/" exact>
+                  <Simulator />
+                </Route>
+              </Switch>
+            </AppLayout>
+          </Route>
+        </Router>
+      </div>
+    );
+  }
 }
-
-export default App;

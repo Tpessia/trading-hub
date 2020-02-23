@@ -1,6 +1,6 @@
 export default interface ITradingAction {
     type: TradingActionType,
-    size: number
+    size?: number
 }
 
 export enum TradingActionType {

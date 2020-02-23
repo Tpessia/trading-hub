@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
-import { TradingGateway } from './gateways/trading.gateway';
 import { DataModule } from 'src/data/data.module';
+import { TradingGateway } from './gateways/trading.gateway';
+import { TradingService } from './services/trading.service';
 
 @Module({
   imports: [DataModule],
   controllers: [],
   providers: [
-    TradingGateway
+    TradingGateway,
+    TradingService
   ],
 })
 export class TradingModule {}

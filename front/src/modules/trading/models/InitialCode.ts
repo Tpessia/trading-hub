@@ -1,5 +1,5 @@
 export const initialCode = 
-`server.off('data').on('data', (data) => {
+`server.on('data', (data) => {
     setState(state => ({
         tradingData: [...state.tradingData, data]
     }))
@@ -20,15 +20,15 @@ export const initialCode =
         })
 })
 
-server.off('error').on('error', (result) => {
+server.on('error', (result) => {
     console.error(result)
 })
 
-server.off('warning').on('warning', (result) => {
+server.on('warning', (result) => {
     console.warn(result)
 })
 
-server.off('end').on('end', (result) => {
+server.on('result', (result) => {
     setState(state => ({ result }))
 
     console.log(result)

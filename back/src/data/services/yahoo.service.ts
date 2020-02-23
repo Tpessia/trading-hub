@@ -10,10 +10,13 @@ import IYahooApiResponseV8 from '../models/yahoo/v8/IYahooApiResponseV8';
 import IYahooDataV8 from '../models/yahoo/v8/IYahooDataV8';
 import IYahooParamsV8, { YahooIntervalV8 } from '../models/yahoo/v8/IYahooParamsV8';
 import { ValidatorService } from './validator.service';
+import { YahooInterval } from '../models/yahoo/IYahooParams';
 
 @Injectable()
 export class YahooService {
     constructor(private readonly validator: ValidatorService) { }
+
+    getHistorical = this.getHistoricalV8
 
     //#region API V8
 
@@ -117,7 +120,7 @@ export class YahooService {
         }).data
 
         const dataResult = parseResult.map(this.mapHistDataV7)
-        
+
         const result = this.validator.validateResponse<IYahooDataV7>(dataResult)
 
         return result
