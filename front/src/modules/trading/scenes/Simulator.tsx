@@ -153,10 +153,10 @@ export default class Simulator extends React.Component<Props, State> {
 
                 <Input.Group style={{ margin: '.7rem 0' }}>
                     <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, { xs: 8, sm: 16, md: 24, lg: 0 }]}>
-                        <Col xs={12} md={6}>
+                        <Col xs={24} sm={12} md={6}>
                             <Input addonBefore="Ticker" type="text" value={this.state.data.tickers[0]} onChange={e => this.updateData({ tickers: [e.target.value] })} />
                         </Col>
-                        <Col xs={12} md={6}>
+                        <Col xs={24} sm={12} md={6}>
                             <InputNumberMask
                                 maskProps={{
                                     prefix: 'R$',
@@ -171,10 +171,10 @@ export default class Simulator extends React.Component<Props, State> {
                                 }}
                             />
                         </Col>
-                        <Col xs={12} md={6}>
+                        <Col xs={24} sm={12} md={6}>
                             <Input addonBefore="Start" type="text" value={this.state.data.start} onChange={e => this.updateData({ start: e.target.value })} />
                         </Col>
-                        <Col xs={12} md={6}>
+                        <Col xs={24} sm={12} md={6}>
                             <Input addonBefore="End" type="text" value={this.state.data.end} onChange={e => this.updateData({ end: e.target.value })} />
                         </Col>
                     </Row>
