@@ -88,7 +88,7 @@ export default class Simulator extends React.Component<Props, State> {
                     ]
                 }))
             })
-            // ConsoleService.disableConsole()
+            ConsoleService.disableConsole()
 
             // eslint-disable-next-line
             eval(this.state.code)
