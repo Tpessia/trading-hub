@@ -58,4 +58,6 @@ module.exports = {
     '@alert-warning-bg-color': '@gold-1',
     '@alert-error-border-color': '@red-3',
     '@alert-error-bg-color': '@red-1',
+    '@border-radius-base': '2px',
+    '@border-radius-sm': '@border-radius-base'
 };

@@ -5,20 +5,21 @@ import ReactInputMask, { Props as ReactInputMaskProps } from 'react-input-mask';
 
 interface Props {
     maskProps: ReactInputMaskProps,
-    inputProps: InputProps
+    inputProps: Omit<InputProps, 'value' | 'defaultValue' | 'onChange'>
 }
 
 export default class InputMask<T> extends React.Component<Props> {
     render() {
         const { maskProps, inputProps } = this.props
-
+        
         return (
-            <ReactInputMask {...maskProps}>
-              { (maskedProps: any) => {
-                  console.log(maskedProps)
-                  return <Input {...maskedProps} {...inputProps} />
-              } }
+            <ReactInputMask
+                {...maskProps}
+            >
+                {(maskedProps: any) => {
+                    return <Input {...maskedProps} {...inputProps} />
+                }}
             </ReactInputMask>
-          )
+        )
     }
 }

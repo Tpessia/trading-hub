@@ -25,13 +25,23 @@ export class TradingService {
             currentData: null,
             orders: [],
             status: {
+                progress: {
+                    current: 0,
+                    total: 0
+                },
+                portfolio: startMsg.tickers.reduce((acc, e) => ({ ...acc, [e]: { size: 0, avgCost: 0 } }), {} as Dictionary<ITradingPortfolio>),
                 balance: startMsg.balance,
                 net: startMsg.balance,
-                portfolio: startMsg.tickers.reduce((acc, e) => ({ ...acc, [e]: { size: 0, avgCost: 0 } }), {} as Dictionary<ITradingPortfolio>)
+                profit: 0,
+                var: 1
             }
         }
 
-        this.clientData[clientId].initialData = await this.getInitialData(new Date(startMsg.start), new Date(startMsg.end), startMsg.tickers)
+        const clientData = this.clientData[clientId]
+
+        clientData.initialData = await this.getInitialData(new Date(startMsg.start), new Date(startMsg.end), startMsg.tickers)
+        clientData.status.progress.total = Object.values(clientData.initialData)
+            .reduce((acc,val) => acc + val.data.length, 0)
     }
 
     async getInitialData(start: Date, end: Date, tickers: string[]) {
@@ -60,23 +70,9 @@ export class TradingService {
         if (!clientData.initialData)
             throw new Error('Internal Error: No data available')
 
-        let nextTicker: string
-
-        if (clientData.currentData) {
-            const keys = Object.keys(this.clientData[clientId].initialData)
-            const currentIndex = keys.indexOf(clientData.currentData.ticker)
-
-            if (currentIndex < 0)
-                throw new Error('Internal Error: Inconsistent client data')
-
-            const nextIndex = currentIndex + 1 >= keys.length ? 0 : currentIndex + 1
-
-            nextTicker = Object.keys(this.clientData[clientId].initialData)[nextIndex]
-        } else {
-            nextTicker = Object.keys(this.clientData[clientId].initialData)[0]
-        }
-
-        const nextData = this.clientData[clientId].initialData[nextTicker].data.shift() ?? null
+        clientData.status.progress.current++
+        let nextTicker = this.getNextTicker(clientId)
+        const nextData = clientData.initialData[nextTicker].data.shift() ?? null
 
         if (nextData === null)
             return null
@@ -92,6 +88,27 @@ export class TradingService {
         }
     }
 
+    getNextTicker(clientId: string) {
+        const clientData = this.clientData[clientId]
+
+        let nextTicker: string
+        if (clientData.currentData) {
+            const keys = Object.keys(clientData.initialData)
+            const currentIndex = keys.indexOf(clientData.currentData.ticker)
+
+            if (currentIndex < 0)
+                throw new Error('Internal Error: Inconsistent client data')
+
+            const nextIndex = currentIndex + 1 >= keys.length ? 0 : currentIndex + 1
+
+            nextTicker = Object.keys(this.clientData[clientId].initialData)[nextIndex]
+        } else {
+            nextTicker = Object.keys(this.clientData[clientId].initialData)[0]
+        }
+
+        return nextTicker
+    }
+
     takeAction(clientId: string, action: ITradingAction) {
         const warnings: string[] = []
 
@@ -105,6 +122,7 @@ export class TradingService {
         const calcPosition = () => {
             const portfolioValue = Object.values(portfolio).reduce((acc,val) => acc + val.size * price, 0)
             status.net = status.balance + portfolioValue
+            status.var = status.net / clientData.initialBalance
         }
 
         switch (action.type) {
@@ -113,8 +131,7 @@ export class TradingService {
 
                 if (newBalance < 0) {
                     warnings.push(`Invalid Operation: Operation would result in a negative balance (current: ${status.balance})`)
-                    calcPosition()
-                    return warnings
+                    break
                 }
 
                 status.balance = newBalance
@@ -137,14 +154,14 @@ export class TradingService {
 
                 if (newSize < 0) {
                     warnings.push(`Invalid Operation: Operation would result in a negative position (ticker: ${ticker}, current: ${portfolio[ticker].size})`)
-                    calcPosition()
-                    return warnings
+                    break
                 } else if (newSize === 0) {
                     portfolio[ticker].avgCost = 0
                 }
 
                 portfolio[ticker].size = newSize
                 status.balance = status.balance + amount
+                status.profit += profit
 
                 clientData.orders.push({
                     action: action,

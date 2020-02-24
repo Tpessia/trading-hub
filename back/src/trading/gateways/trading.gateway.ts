@@ -1,11 +1,10 @@
 import { Logger } from '@nestjs/common';
-import { MESSAGES } from '@nestjs/core/constants';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import ITradingAction from '../models/ITradingAction';
 import ITradingStart from '../models/ITradingStart';
-import { TradingService } from '../services/trading.service';
 import { TradingInputMessage, TradingOutputMessage } from '../models/TradingMessage';
+import { TradingService } from '../services/trading.service';
 
 @WebSocketGateway({ namespace: 'trading' })
 export class TradingGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -66,7 +65,7 @@ export class TradingGateway implements OnGatewayConnection, OnGatewayDisconnect 
     onNextResult(client: Socket, message: ITradingAction): void {
         try {
             const warnings = this.tradingService.takeAction(client.id, message)
-            warnings.forEach(e => client.emit('warning', e))
+            warnings.forEach(e => client.emit(TradingOutputMessage.Warning, e))
             
             const nextData = this.tradingService.getNextData(client.id)
 

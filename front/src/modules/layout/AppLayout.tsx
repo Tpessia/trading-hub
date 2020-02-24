@@ -30,7 +30,7 @@ class AppLayout extends React.Component<RouteComponentProps, State> {
   componentWillUnmount() {
     window.removeEventListener('resize', this.updateDimensions)
   }
-  
+
   updateDimensions = () => {
     this.setState({
       width: window.innerWidth,
@@ -65,21 +65,20 @@ class AppLayout extends React.Component<RouteComponentProps, State> {
           }}
         >
           <div className="logo" />
-          {
-            this.isMobile
-              ? (<Button
-                  type="primary"
-                  style={{
-                    float: 'right',
-                    height: '100%',
-                    width: '3.5rem',
-                    borderRadius: 0
-                  }}
-                  onClick={this.showDrawer}
-                >
-                    <Icon type="menu" />
-                </Button>)
-              : <AppBarMenu horizontal={true} pathname={location.pathname} />
+          {this.isMobile ? (
+            <Button
+              type="primary"
+              style={{
+                float: 'right',
+                height: '100%',
+                width: '3.5rem',
+                borderRadius: 0
+              }}
+              onClick={this.showDrawer}
+            >
+              <Icon type="menu" />
+            </Button>
+          ) : <AppBarMenu horizontal={true} pathname={location.pathname} />
           }
         </Header>
 
