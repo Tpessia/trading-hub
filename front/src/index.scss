@@ -48,3 +48,7 @@ code {
 .fade-appear.fade-appear-active {
   animation-duration: .3s;
 }
+
+.ant-message-notice-content {
+  background-color: $body-background !important;
+}

@@ -10,7 +10,6 @@ import IYahooApiResponseV8 from '../models/yahoo/v8/IYahooApiResponseV8';
 import IYahooDataV8 from '../models/yahoo/v8/IYahooDataV8';
 import IYahooParamsV8, { YahooIntervalV8 } from '../models/yahoo/v8/IYahooParamsV8';
 import { ValidatorService } from './validator.service';
-import { YahooInterval } from '../models/yahoo/IYahooParams';
 
 @Injectable()
 export class YahooService {
@@ -99,12 +98,16 @@ export class YahooService {
     // Inspired by: https://github.com/AndrewRPorter/yahoo-historical/blob/master/yahoo_historical/fetch.py
     async getHistoricalV7(ticker: string, start: Date, end: Date, interval: YahooIntervalV7): Promise<IStockResult<IYahooDataV7>> {
         const authResult = (await axiosService.get<string>(`https://finance.yahoo.com/quote/${ticker}.SA/history`))
-        const cookie = authResult.headers['set-cookie'][0].match(/B=(.*?);/)[1]
+        const cookie: string | null = authResult.headers['set-cookie']?.[0]?.match(/B=(.*?);/)?.[1]
+        const crumb = authResult.data.match(/"CrumbStore":\{"crumb":"(.*?)"\}/)?.[1]?.replace('\\u002F', '/')
+
+        if (!cookie || !crumb)
+            throw new Error('Failed to obtain cookie and/or crumb')
 
         const params: IYahooParamsV7 = {
             interval,
+            crumb,
             type: YahooEventV7.History,
-            crumb: authResult.data.match(/"CrumbStore":\{"crumb":"(.*?)"\}/)[1].replace('\\u002F', '/'),
             period1: getUnixTimeGMT(start),
             period2: getUnixTimeGMT(end)
         }

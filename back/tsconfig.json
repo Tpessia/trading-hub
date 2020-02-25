@@ -10,9 +10,10 @@
     "baseUrl": "./",
     "incremental": true,
 
-    "noImplicitAny": true,
+    "noImplicitAny": true, // everything should be typed
+    "strict": true, // enable MyType | null
     "removeComments": true,
-    "forceConsistentCasingInFileNames": true,
+    "forceConsistentCasingInFileNames": true
   },
   "exclude": ["node_modules", "dist"]
 }

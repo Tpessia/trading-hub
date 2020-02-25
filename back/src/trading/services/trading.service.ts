@@ -1,5 +1,6 @@
 import { Injectable, Scope } from "@nestjs/common";
 import Dictionary from "src/common/models/Dictionary";
+import IStockData from "src/data/models/common/IStockData";
 import IStockResult from "src/data/models/common/IStockResult";
 import IYahooData from "src/data/models/yahoo/IYahooData";
 import { YahooInterval } from "src/data/models/yahoo/IYahooParams";
@@ -12,17 +13,30 @@ import ITradingStart from "../models/ITradingStart";
 import { ITradingPortfolio } from "../models/ITradingStatus";
 
 @Injectable({ scope: Scope.TRANSIENT })
-export class TradingService {
+export class TradingService<T extends IStockData = IYahooData> {
     constructor(private readonly yahooService: YahooService) { }
 
-    private clientData: Dictionary<IClientState<IYahooData>> = {}
+    private clientData: Dictionary<IClientState<T>> = {}
+
+    private getClient(clientId: string): IClientState<T> | null {
+        const clientData = this.clientData[clientId]
+        return clientData
+    }
+
+    private setClient(clientId: string, data: IClientState<T>) {
+        this.clientData[clientId] = data
+    }
+
+    deleteClient(clientId: string) {
+        delete this.clientData[clientId]
+    }
 
     async createClient(clientId: string, startMsg: ITradingStart) {
-        this.clientData[clientId] = {
+        this.setClient(clientId, {
             start: new Date(),
             initialBalance: startMsg.balance,
             initialData: {},
-            currentData: null,
+            currentData: undefined,
             orders: [],
             status: {
                 progress: {
@@ -35,17 +49,20 @@ export class TradingService {
                 profit: 0,
                 var: 1
             }
+        })
+
+        const clientData = this.getClient(clientId)
+
+        if (clientData) {
+            clientData.initialData = await this.getInitialData(new Date(startMsg.start), new Date(startMsg.end), startMsg.tickers)
+            clientData.status.progress.total = Object.values(clientData.initialData)
+                .reduce((acc, val) => acc + val.data.length, 0)
         }
 
-        const clientData = this.clientData[clientId]
-
-        clientData.initialData = await this.getInitialData(new Date(startMsg.start), new Date(startMsg.end), startMsg.tickers)
-        clientData.status.progress.total = Object.values(clientData.initialData)
-            .reduce((acc,val) => acc + val.data.length, 0)
     }
 
     async getInitialData(start: Date, end: Date, tickers: string[]) {
-        const requests: Promise<IStockResult<IYahooData>>[] = []
+        const requests: Promise<IStockResult<T>>[] = []
 
         tickers.forEach(ticker => {
             const request = this.yahooService.getHistorical(
@@ -55,18 +72,18 @@ export class TradingService {
                 YahooInterval.Day1
             )
 
-            requests.push(request)
+            requests.push(request as any)
         })
 
         const results = await Promise.all(requests)
 
-        return tickers.reduce((acc,val,i) => ({ ...acc, [val]: results[i] }),
-            {} as Dictionary<IStockResult<IYahooData>>)
+        return tickers.reduce((acc, val, i) => ({ ...acc, [val]: results[i] }),
+            {} as Dictionary<IStockResult<T>>)
     }
 
-    getNextData(clientId: string): ITradingData<IYahooData> {
+    getNextData(clientId: string): ITradingData<T> | null {
         const clientData = this.clientData[clientId]
-        
+
         if (!clientData.initialData)
             throw new Error('Internal Error: No data available')
 
@@ -112,21 +129,28 @@ export class TradingService {
     takeAction(clientId: string, action: ITradingAction) {
         const warnings: string[] = []
 
-        const clientData = this.clientData[clientId]
-        const ticker = clientData.currentData.ticker
-        const mktData = clientData.currentData.data
+        const clientData = this.getClient(clientId)
+
+        if (!clientData || !clientData.currentData)
+            throw new Error('Internal Error: Unable to find current simulation data')
+
+        const ticker = clientData?.currentData?.ticker
+        const mktData = clientData?.currentData?.data
         const status = clientData.status
         const portfolio = status.portfolio
         const price = mktData.Close
 
         const calcPosition = () => {
-            const portfolioValue = Object.values(portfolio).reduce((acc,val) => acc + val.size * price, 0)
+            const portfolioValue = Object.values(portfolio).reduce((acc, val) => acc + val.size * price, 0)
             status.net = status.balance + portfolioValue
             status.var = status.net / clientData.initialBalance
         }
 
         switch (action.type) {
             case TradingActionType.Buy:
+                if (!action.size)
+                    throw new Error('Invalid Operation: Buy order should have a size')
+
                 const newBalance = status.balance - price * action.size
 
                 if (newBalance < 0) {
@@ -148,6 +172,9 @@ export class TradingService {
 
                 break
             case TradingActionType.Sell:
+                if (!action.size)
+                    throw new Error('Invalid Operation: Sell order should have a size')
+
                 const newSize = portfolio[ticker].size - action.size
                 const amount = action.size * price
                 const profit = action.size * (price - portfolio[ticker].avgCost)
@@ -177,17 +204,15 @@ export class TradingService {
         return warnings
     }
 
-    getClientResult(clientId: string): IClientResult<IYahooData> {
-        const clientData = this.clientData[clientId]
+    getClientResult(clientId: string): IClientResult<T> | null {
+        const clientData = this.getClient(clientId)
+
+        if (!clientData) return null
 
         return {
-            initialBalance: clientData.initialBalance,
-            orders: clientData.orders,
-            status: clientData.status
+            initialBalance: clientData?.initialBalance,
+            orders: clientData?.orders,
+            status: clientData?.status
         }
-    }
-
-    deleteClient(clientId: string) {
-        delete this.clientData[clientId]
     }
 }

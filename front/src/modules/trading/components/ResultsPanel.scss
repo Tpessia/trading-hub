@@ -1,50 +1,5 @@
 @import '../../../variables.scss';
 
-$title-height: 55px;
-
-.result-grid-wrapper {
-    display: grid;
-    width: 100%;
-
-    grid-template-columns: 50% 50%;
-    grid-template-rows: 25% 25% 25% 25%;
-
-    @media (min-width: $size-md) {
-        grid-template-columns: 25% 25% 25% 25%;
-        grid-template-rows: 50% 50%;
-    }
-}
-
-.result-grid {
-    cursor: default;
-    width: 100%;
-    padding: 0 5px 0 15px;
-}
-
-.portfolio-grid {
-    cursor: default;
-    width: 50%;
-    height: (400px - $title-height) / 4;
-    padding: 0 5px 0 15px;
-
-    @media (min-width: $size-md) {
-        height: (250px - $title-height) / 2;
-    }
-}
-
-.ant-card-head {
-    min-height: $title-height;
-    height: $title-height;
-    border: 0;
-    margin: 0;
-}
-
-.ant-card-head-title {
-    min-height: $title-height;
-    height: $title-height;
-    padding: 10px 0 5px;
-}
-
 .results-panel {
     /* width */
     ::-webkit-scrollbar {

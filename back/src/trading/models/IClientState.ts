@@ -9,7 +9,7 @@ export default interface IClientState<T extends IStockData> {
     start: Date,
     initialBalance: number,
     initialData: Dictionary<IStockResult<T>>,
-    currentData: IStockDataInstance<T>,
+    currentData?: IStockDataInstance<T>,
     orders: ITradingOrder<T>[],
     status: ITradingStatus
 }

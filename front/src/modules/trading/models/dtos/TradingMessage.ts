@@ -1,6 +1,6 @@
 export enum TradingInputMessage {
     Data = 'data',
-    Error = 'error',
+    Error = 'fail',
     Warning = 'warning',
     Result = 'result',
     End = 'end'

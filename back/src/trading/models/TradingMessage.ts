@@ -6,7 +6,7 @@ export enum TradingInputMessage {
 
 export enum TradingOutputMessage {
     Data = 'data',
-    Error = 'error',
+    Error = 'fail',
     Warning = 'warning',
     Result = 'result',
     End = 'end'

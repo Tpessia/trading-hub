@@ -25,9 +25,9 @@ export class TradingGateway implements OnGatewayConnection, OnGatewayDisconnect 
     
     handleError(client: Socket, error: Error) {
         if (error instanceof Error) {
-            this.tradingService.deleteClient(client.id)
             Logger.error(error.message, error.stack, TradingGateway.name)
             client.emit(TradingOutputMessage.Error, error.message)
+            this.handleFinish(client)
         } else {
             Logger.error(error, Error().stack, TradingGateway.name)
             return client.emit(TradingOutputMessage.Error, 'Internal server error')
@@ -37,9 +37,7 @@ export class TradingGateway implements OnGatewayConnection, OnGatewayDisconnect 
     handleFinish(client: Socket) {
         const result = this.tradingService.getClientResult(client.id)
         client.emit(TradingOutputMessage.Result, result)
-
         client.emit(TradingOutputMessage.End)
-
         this.tradingService.deleteClient(client.id)
     }
 
@@ -51,16 +49,16 @@ export class TradingGateway implements OnGatewayConnection, OnGatewayDisconnect 
     async onStart(client: Socket, message: ITradingStart): Promise<void> {
         try {
             Logger.log(`Starting: ${client.id}\n@ ${JSON.stringify(message)}`, TradingGateway.name);
-
+            
             await this.tradingService.createClient(client.id, message)
-
+            
             const nextData = this.tradingService.getNextData(client.id)
             client.emit(TradingOutputMessage.Data, nextData)
         } catch (e) {
             this.handleError(client, e)
         }
     }
-
+    
     @SubscribeMessage(TradingInputMessage.Action)
     onNextResult(client: Socket, message: ITradingAction): void {
         try {

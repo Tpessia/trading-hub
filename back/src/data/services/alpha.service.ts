@@ -1,21 +1,21 @@
 import { Injectable } from '@nestjs/common';
+import { pick } from 'lodash';
 import { AlphaInterval } from 'src/data/models/alpha/AlphaConfig';
 import IAlphaData from 'src/data/models/alpha/IAlphaData';
 import axiosService from '../../common/services/axios.service';
 import IAlphaApiResponse, { IAlphaApiData } from '../models/alpha/IAlphaApiResponse';
 import IStockResult from '../models/common/IStockResult';
 import { ValidatorService } from './validator.service';
-import { pick } from 'lodash';
 
 @Injectable()
 export class AlphaService {
     constructor(private readonly validator: ValidatorService) { }
-    
+
     private readonly apiKey = 'WU8VTI1IRD58LFV5';
 
     getHistorical = async (ticker: string, start: Date, end: Date, interval: AlphaInterval): Promise<IStockResult<IAlphaData>> => {
         const apiResult = (await axiosService.get<IAlphaApiResponse>(`https://www.alphavantage.co/query?apikey=${this.apiKey}&function=${AlphaInterval.Daily}&symbol=${ticker}.SAO&datatype=json&outputsize=full`)).data
-        
+
         const filterResult = this.filterDate(apiResult, start, end)
 
         const dataResult = Object.entries(filterResult['Time Series (Daily)']).map(e => this.mapHistData(e[0], e[1]))
@@ -31,11 +31,11 @@ export class AlphaService {
 
             if (date.getTime() >= start.getTime() && date.getTime() <= end.getTime())
                 return e[0]
-            
+
             return null
         })
-        .filter(e => e !== null)
-        .reverse()
+            .filter(e => e !== null)
+            .reverse() as string[]
 
         return {
             ...apiResult,
