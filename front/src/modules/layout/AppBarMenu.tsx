@@ -1,10 +1,12 @@
 import { Menu } from 'antd';
 import React from 'react';
 import { Link } from "react-router-dom";
+import { ClickParam } from 'antd/lib/menu';
 
 interface Props {
     horizontal: boolean,
-    pathname: string
+    pathname: string,
+    onSelect?: (param: ClickParam) => void
 }
 
 export default class AppBarMenu extends React.Component<Props> {
@@ -27,6 +29,7 @@ export default class AppBarMenu extends React.Component<Props> {
                 mode={horizontal ? 'horizontal' : 'vertical'}
                 style={style}
                 selectedKeys={[pathname]}
+                onClick={this.props.onSelect}
             >
                 <Menu.Item key="/">
                     <Link to="/">Home</Link>

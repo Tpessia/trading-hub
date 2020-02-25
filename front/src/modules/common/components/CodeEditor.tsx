@@ -1,4 +1,4 @@
-import AceEditor from "react-ace";
+import AceEditor, { IAceEditorProps } from "react-ace";
 
 import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/theme-ambiance";
@@ -25,18 +25,16 @@ import "ace-builds/src-noconflict/theme-twilight";
 import "ace-builds/src-noconflict/theme-vibrant_ink";
 
 import React from 'react';
-import { merge } from 'lodash-es';
 import variables from "../../../variables";
 
-interface Props {
-    value: string,
-    onChange: (value: string, event: any) => void,
-    styles?: React.CSSProperties,
-    defaultValue?: string
+
+
+interface Props extends IAceEditorProps {
+
 }
 
 export default class CodeEditor extends React.Component<Props> {
-    styles: React.CSSProperties = {
+    style: React.CSSProperties = {
         width: '100%',
         border: `8px solid ${variables.bodySecundary}`
     }
@@ -67,20 +65,20 @@ export default class CodeEditor extends React.Component<Props> {
         //     'vibrant_ink'
         // ]
 
+        const { style, editorProps, ...rest } = this.props
+
         return (
             <AceEditor
-                style={merge(this.styles, this.props.styles)}
+                style={{ ...style, ...this.style }}
                 mode="javascript"
                 theme="twilight"
-                defaultValue={this.props.defaultValue ?? this.props.value }
-                value={this.props.value}
-                onChange={this.props.onChange}
                 name="code_editor"
-                editorProps={{ $blockScrolling: true }}
+                editorProps={{ ...editorProps, $blockScrolling: true }}
                 showPrintMargin={false}
                 setOptions={{
                     // useWorker: false
                 }}
+                {...rest}
             />
         )
     }

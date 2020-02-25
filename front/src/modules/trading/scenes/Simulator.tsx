@@ -264,20 +264,29 @@ export default class Simulator<T extends IStockData = IStockData> extends React.
                     </Row>
                 </Input.Group>
 
-                <Row gutter={[{ xs: 0, sm: 0, md: 0, lg: 32 }, { xs: 8, sm: 16, md: 24, lg: 0 }]}>
-                    <Col xs={24} lg={12}>
+                <Row
+                    className="simulator-wrapper"
+                    style={{ flexGrow: 1, display: 'flex' }}
+                    gutter={[
+                        { xs: 0, sm: 0, md: 0, lg: 32 },
+                        { xs: 8, sm: 16, md: 24, lg: 0 }
+                    ]}
+                >
+                    <Col xs={24} lg={12} style={{ display: 'flex' }}>
                         <CodeEditor
+                            className="code-editor"
+                            style={{ height: 'auto', width: '100%' }}
                             defaultValue={this.state.code}
                             value={this.state.code}
                             onChange={this.handleEditorChange}
                         />
                     </Col>
-                    <Col xs={24} lg={12}>
-                        <Row>
-                            <Col xs={24}>
+                    <Col xs={24} lg={12} style={{ display: 'flex', flexDirection: 'column' }}>
+                        <Row style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                            <Col xs={24} style={{ flex: '1' }}>
                                 <ResultsPanel<T>
                                     className="output-box box-dark"
-                                    style={{ marginBottom: '5px' }}
+                                    style={{ marginBottom: '12px', display: 'flex' }}
                                     running={this.state.running}
                                     totalSteps={this.totalSteps}
                                     progress={this.currentProgress}
@@ -285,10 +294,10 @@ export default class Simulator<T extends IStockData = IStockData> extends React.
                                     result={this.state.result}
                                 />
                             </Col>
-                            <Col xs={24}>
+                            <Col xs={24} style={{ flex: '1' }}>
                                 <ConsoleReadOnly
                                     className="output-box box-dark"
-                                    style={{ marginTop: '5px', boxShadow: 'none' }}
+                                    style={{ marginTop: '12px', boxShadow: 'none' }}
                                     value={this.state.messages}
                                 />
                             </Col>

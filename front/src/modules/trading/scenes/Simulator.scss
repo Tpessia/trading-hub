@@ -1,9 +1,34 @@
 @import '../../../variables.scss';
 
-.output-box {
-    height: 400px !important;
+.simulator-wrapper {
+    flex-direction: column;
+    
+    @media (min-width: $size-md) {
+        flex-direction: row;
+    }
+}
+
+.code-editor {
+    height: 500px !important;
+
+    .ace_content {
+        height: 500px !important;
+    }
 
     @media (min-width: $size-md) {
-        height: 245px !important;
+        height: 100% !important;
+
+        .ace_content {
+            height: 100% !important;
+        }
+    }
+}
+
+.output-box {
+    min-height: 275px !important;
+    height: 500px !important;
+
+    @media (min-width: $size-md) {
+        height: calc(100% - 12px) !important;
     }
 }

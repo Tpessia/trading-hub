@@ -94,11 +94,15 @@ class AppLayout extends React.Component<RouteComponentProps, State> {
           onClose={this.handleClose}
           visible={this.state.visible}
         >
-          <AppBarMenu horizontal={false} pathname={location.pathname} />
+          <AppBarMenu horizontal={false} pathname={location.pathname} onSelect={this.handleClose} />
         </Drawer>
 
         <Content className="content" style={{ marginTop: '64px' }}>
-          <div style={{ minHeight: 'calc(100vh - 69px - 64px - 1rem)', overflowX: 'hidden', marginTop: '1rem' }}>
+          <div style={{
+            minHeight: 'calc(100vh - 69px - 64px - 1rem)',
+            overflowX: 'hidden', marginTop: '1rem',
+            display: 'flex', flexDirection: 'column'
+          }}>
             {this.props.children}
           </div>
         </Content>

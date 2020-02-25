@@ -7,6 +7,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import IClientResult from '../models/dtos/IClientResult';
 import IStockData from '../models/dtos/IStockData';
 import './ResultsPanel.scss';
+import variables from '../../../variables';
 
 interface Props<T extends IStockData> extends HTMLAttributes<HTMLDivElement> {
     running: boolean,
@@ -47,6 +48,8 @@ export default class ResultsPanel<T extends IStockData> extends React.Component<
     formatCurrency = (num: number | undefined) => num !== undefined ? format(num, { code: 'BRL' }) : format(0, { code: 'BRL' })
 
     render() {
+        const { running, progress, totalSteps, variation, result, ...rest } = this.props
+
         const cardStyle: React.CSSProperties = {
             width: '100%',
             overflow: 'hidden',
@@ -76,11 +79,37 @@ export default class ResultsPanel<T extends IStockData> extends React.Component<
             height: '100%'
         }
 
+        const statStyleSuccess: React.CSSProperties = {
+            color: variables.success,
+            fontWeight: 500
+        }
+
+        const statStyleError: React.CSSProperties = {
+            color: variables.error,
+            fontWeight: 500
+        }
+
         const statValueStyle: React.CSSProperties = {
             fontSize: '1.3rem'
         }
 
-        const { running, progress, totalSteps, variation, result, ...rest } = this.props
+        const getBalanceStyle = () => {
+            if (!result?.status.balance) return {}
+            if (result?.status.balance === result?.initialBalance)
+                return {}
+            else if (result?.status.balance > result?.initialBalance)
+                return statStyleSuccess
+            return statStyleError
+        }
+
+        const getVarStyle = () => {
+            if (!result?.status.var) return {}
+            if (result?.status.var === 1)
+                return {}
+            else if (result?.status.var > 1)
+                return statStyleSuccess
+            return statStyleError
+        }
 
         const portfolio = this.props.result?.status.portfolio
         const portfolioList = portfolio && this.state.showPortfolio ? Object.entries(portfolio).map(e => (
@@ -140,9 +169,11 @@ export default class ResultsPanel<T extends IStockData> extends React.Component<
                                             classNames={'fade'}
                                         >
                                             <Card
+                                                className="ant-card-contain-grid"
                                                 bordered={false}
                                                 style={cardStyle}
                                                 headStyle={{ padding: '0 15px' }}
+                                                bodyStyle={{ height: '100%', display: 'flex' }}
                                                 title={(
                                                     <div style={cardTitleStyle}>
                                                         <Icon
@@ -154,30 +185,32 @@ export default class ResultsPanel<T extends IStockData> extends React.Component<
                                                     </div>
                                                 )}
                                             >
-                                                <Card.Grid className="result-grid">
-                                                    <Statistic
-                                                        style={statStyle} valueStyle={statValueStyle}
-                                                        title="Balance" value={this.formatCurrency(result?.status.balance)}
-                                                    />
-                                                </Card.Grid>
-                                                <Card.Grid className="result-grid">
-                                                    <Statistic
-                                                        style={statStyle} valueStyle={statValueStyle}
-                                                        title="Net" value={this.formatCurrency(result?.status.net)}
-                                                    />
-                                                </Card.Grid>
-                                                <Card.Grid className="result-grid">
-                                                    <Statistic
-                                                        style={statStyle} valueStyle={statValueStyle}
-                                                        title="Profit" value={this.formatCurrency(result?.status.profit)}
-                                                    />
-                                                </Card.Grid>
-                                                <Card.Grid className="result-grid">
-                                                    <Statistic
-                                                        style={statStyle} valueStyle={statValueStyle}
-                                                        title="Var" value={result?.status.var.toFixed(5)}
-                                                    />
-                                                </Card.Grid>
+                                                <div className="result-grid-wrapper">
+                                                    <Card.Grid className="result-grid">
+                                                        <Statistic
+                                                            style={statStyle} valueStyle={statValueStyle}
+                                                            title="Balance" value={this.formatCurrency(result?.status.balance)}
+                                                        />
+                                                    </Card.Grid>
+                                                    <Card.Grid className="result-grid">
+                                                        <Statistic
+                                                            style={statStyle} valueStyle={statValueStyle}
+                                                            title="Net" value={this.formatCurrency(result?.status.net)}
+                                                        />
+                                                    </Card.Grid>
+                                                    <Card.Grid className="result-grid">
+                                                        <Statistic
+                                                            style={statStyle} valueStyle={{ ...statValueStyle, ...getBalanceStyle() }}
+                                                            title="Profit" value={this.formatCurrency(result?.status.profit)}
+                                                        />
+                                                    </Card.Grid>
+                                                    <Card.Grid className="result-grid">
+                                                        <Statistic
+                                                            style={statStyle} valueStyle={{ ...statValueStyle, ...getVarStyle() }}
+                                                            title="Var" value={result?.status.var.toFixed(5)}
+                                                        />
+                                                    </Card.Grid>
+                                                </div>
                                             </Card>
                                         </CSSTransition>
                                     ) : (
@@ -193,7 +226,7 @@ export default class ResultsPanel<T extends IStockData> extends React.Component<
                                                     className='ant-card-contain-grid'
                                                     style={cardStyle}
                                                     headStyle={{ padding: '0 15px' }}
-                                                    bodyStyle={{ overflowY: 'auto' }}
+                                                    bodyStyle={{ overflowY: 'auto', flex: '1' }}
                                                     title={(
                                                         <div style={cardTitleStyle}>
                                                             <Icon
@@ -213,12 +246,20 @@ export default class ResultsPanel<T extends IStockData> extends React.Component<
                             )}
                     </>
                 ) : (
-                        <Result
-                            icon={<Icon type="info-circle" theme="filled" />}
-                            title="No Result Available"
-                            subTitle="Your simulation's result will appear here"
-                            style={{ width: '100%' }}
-                        />
+                        <div
+                            style={{
+                                width: '100%',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center'
+                            }}
+                        >
+                            <Result
+                                icon={<Icon type="info-circle" theme="filled" />}
+                                title="No Result Available"
+                                subTitle="Your simulation's result will appear here"
+                            />
+                        </div>
                     )}
             </div>
         )

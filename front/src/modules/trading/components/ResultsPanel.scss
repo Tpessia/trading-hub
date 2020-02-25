@@ -2,16 +2,23 @@
 
 $title-height: 55px;
 
-.result-grid {
-    cursor: default;
-    width: 50%;
-    height: (400px - $title-height) / 4;
-    padding: 0 5px 0 15px;
+.result-grid-wrapper {
+    display: grid;
+    width: 100%;
+
+    grid-template-columns: 50% 50%;
+    grid-template-rows: 25% 25% 25% 25%;
 
     @media (min-width: $size-md) {
-        width: 25%;
-        height: (245px - $title-height) / 2;
+        grid-template-columns: 25% 25% 25% 25%;
+        grid-template-rows: 50% 50%;
     }
+}
+
+.result-grid {
+    cursor: default;
+    width: 100%;
+    padding: 0 5px 0 15px;
 }
 
 .portfolio-grid {
@@ -21,7 +28,7 @@ $title-height: 55px;
     padding: 0 5px 0 15px;
 
     @media (min-width: $size-md) {
-        height: (245px - $title-height) / 2;
+        height: (250px - $title-height) / 2;
     }
 }
 
