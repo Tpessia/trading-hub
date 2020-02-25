@@ -22,6 +22,5 @@ WORKDIR /app
 COPY --from=build /app/back .
 COPY --from=build /app/front/build ./dist/static
 
-
-EXPOSE 3001
+EXPOSE 80
 CMD ["npm","run","start:prod"]

@@ -21,7 +21,7 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   // Start App
-  await app.listen(3001);
+  await app.listen(process.env.NODE_ENV === 'production' ? 80 : 3001);
 }
 
 bootstrap();
