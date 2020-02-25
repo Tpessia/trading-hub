@@ -1,0 +1,9 @@
+@import '../../../variables.scss';
+
+.output-box {
+    height: 400px !important;
+
+    @media (min-width: $size-md) {
+        height: 245px !important;
+    }
+}

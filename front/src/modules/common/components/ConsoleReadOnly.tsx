@@ -10,9 +10,8 @@ interface Props extends TextAreaProps {
 }
 
 export default class ConsoleReadOnly extends React.Component<Props> {
-    styles: React.CSSProperties = {
+    style: React.CSSProperties = {
         width: '100%',
-        height: '500px',
         cursor: 'default',
         resize: 'none'
     }
@@ -25,7 +24,7 @@ export default class ConsoleReadOnly extends React.Component<Props> {
         return (
             <TextArea
                 {...rest}
-                style={merge(this.styles, this.props.style)}
+                style={merge(this.style, this.props.style)}
                 value={this.props.value instanceof Array ? this.stringify(this.props.value) : this.props.value}
             />
         )

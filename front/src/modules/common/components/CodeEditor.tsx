@@ -26,6 +26,7 @@ import "ace-builds/src-noconflict/theme-vibrant_ink";
 
 import React from 'react';
 import { merge } from 'lodash-es';
+import variables from "../../../variables";
 
 interface Props {
     value: string,
@@ -37,7 +38,7 @@ interface Props {
 export default class CodeEditor extends React.Component<Props> {
     styles: React.CSSProperties = {
         width: '100%',
-        border: '8px solid #080808'
+        border: `8px solid ${variables.bodySecundary}`
     }
 
     render() {

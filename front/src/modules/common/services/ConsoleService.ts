@@ -1,32 +1,36 @@
-import Dictionary from "../models/Dictionary"
+import Dictionary from "../models/Dictionary";
 
 export default abstract class ConsoleService {
-    static readonly initConsole = window.console.log
-    static console = window.console.log
-    static callbacks: Dictionary<((message: any) => void)> = {}
+    static callbacks: Dictionary<(message: any) => void> = {}
 
     static enableConsole() {
-        ConsoleService.console = ConsoleService.initConsole
+        // Console Print
+        (console as any).print = (message: any) => {
+            Object.values(this.callbacks).forEach(e => e(message))
+        };
+
+        // Load Script
+        (window as any).loadScript = (path: string) => {
+            const script = document.createElement('script')
+            script.type = 'text/javascript'
+            script.src = path
+            document.head.appendChild(script)
+        };
     }
 
     static disableConsole() {
-        ConsoleService.console = () => {}
+        // Console Print
+        delete (console as any).print
+
+        // Load Script
+        delete (window as any).loadScript
     }
 
     static addCallback(name: string, callback: (message: any) => void) {
         this.callbacks[name] = callback
-        const callbacks = this.callbacks
-        console.log = function (message: any) {
-            Object.values(callbacks).forEach(e => e(message))
-            ConsoleService.console.apply(console, arguments as any);
-        }
     }
 
     static removeCallback(name: string) {
-        delete ConsoleService.callbacks[name]
-    }
-
-    static resetConsole() {
-        console.log = this.initConsole
+        delete this.callbacks[name]
     }
 }

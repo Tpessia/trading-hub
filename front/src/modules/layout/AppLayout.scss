@@ -1,11 +1,4 @@
-/*
-xs: < 576px
-sm: < 768px
-md: < 992px
-lg: < 1200px
-xl: < 1600px
-xxl: >= 1600px
-*/
+@import '../../variables.scss';
 
 .logo {
     width: 120px;
@@ -18,11 +11,11 @@ xxl: >= 1600px
 .content {
     padding: 0 15px;
 
-    @media (min-width: 576px) {
+    @media (min-width: $size-xs) {
         padding: 0 25px;
     }
 
-    @media (min-width: 768px) {
+    @media (min-width: $size-sm) {
         padding: 0 50px;
     }
 }

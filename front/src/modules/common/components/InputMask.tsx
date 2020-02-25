@@ -8,7 +8,7 @@ interface Props {
     inputProps: Omit<InputProps, 'value' | 'defaultValue' | 'onChange'>
 }
 
-export default class InputMask<T> extends React.Component<Props> {
+export default class InputMask extends React.Component<Props> {
     render() {
         const { maskProps, inputProps } = this.props
         

@@ -1,5 +1,13 @@
+const variables = require('./src/variables')
+
 module.exports = {
-    '@body-background': '@black',
+    '@primary-color': variables.primaryColor,
+    '@primary-2': variables.primary2,
+    '@border-color-base': variables.borderColorBase,
+    '@component-background': variables.componentBackground,
+    '@body-background': variables.bodyBackground,
+    '@item-active-bg': variables.itemActiveBg,
+
     '@component-background': '#141414',
     '@icon-color-hover': 'fade(@white, 75%)',
     '@heading-color': 'fade(@white, 85%)',

@@ -1,6 +1,10 @@
 export const initialCode = 
-`server.on('data', (data) => {
-    const rnd = Math.floor(Math.random() * 10)
+`loadScript('https://cdnjs.cloudflare.com/ajax/libs/mathjs/6.6.0/math.min.js')
+
+console.print('Start')
+
+server.on('data', (data) => {
+    const rnd = math.randomInt(0, 10)
 
     if (rnd > 4)
         server.emit('action', {

@@ -1,21 +1,24 @@
 import { Button, Col, Input, Row, Typography } from 'antd';
+import moment from 'moment';
 import React from 'react';
-import { buildStyles, CircularProgressbarWithChildren } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import io from 'socket.io-client';
+import { isString } from 'util';
 import CodeEditor from "../../common/components/CodeEditor";
 import ConsoleReadOnly from '../../common/components/ConsoleReadOnly';
-import InputMask from '../../common/components/InputMask';
+import DatePickerAddon from '../../common/components/DatePickerAddon';
 import InputNumberMask from '../../common/components/InputNumberMask';
 import ConfigService from '../../common/services/ConfigService';
 import ConsoleService from '../../common/services/ConsoleService';
-import { getFirstOfYear, getIsoString, getDateOnly } from '../../common/utils/date.utils';
+import { getDateOnly, getFirstOfYear, getIsoString } from '../../common/utils/date.utils';
+import ResultsPanel from '../components/ResultsPanel';
 import IClientResult from '../models/dtos/IClientResult';
 import IStockData from '../models/dtos/IStockData';
 import ITradingData from "../models/dtos/ITradingData";
 import ITradingStart from '../models/dtos/ITradingStart';
 import { TradingInputMessage, TradingOutputMessage } from '../models/dtos/TradingMessage';
 import { initialCode } from '../models/InitialCode';
+import './Simulator.scss';
 
 const { Title } = Typography
 
@@ -23,21 +26,21 @@ interface Props {
 
 }
 
-interface State {
+interface State<T extends IStockData> {
     data: ITradingStart,
     code: string,
     messages: string[],
 
     server: SocketIOClient.Socket | null,
     running: boolean,
-    statusData: ITradingData<IStockData>['status'][],
-    result: IClientResult<IStockData> | null,
+    statusData: ITradingData<T>['status'][],
+    result: IClientResult<T> | null,
 }
 
-export default class Simulator extends React.Component<Props, State> {
-    state: State = {
+export default class Simulator<T extends IStockData = IStockData> extends React.Component<Props, State<T>> {
+    state: State<T> = {
         data: {
-            tickers: ['PETR4'],
+            tickers: ['PETR4','ITUB4'],
             start: getIsoString(getFirstOfYear(new Date())),
             end: getIsoString(getDateOnly(new Date())),
             balance: 100000
@@ -51,7 +54,16 @@ export default class Simulator extends React.Component<Props, State> {
         result: null
     }
 
-    get progressPercent() {
+    get totalSteps() {
+        if (this.state.statusData.length === 0) return 0
+
+        const statusData = this.state.statusData
+        const progress = statusData[0].progress
+
+        return progress.total
+    }
+
+    get currentProgress() {
         if (this.state.statusData.length === 0) return 0
 
         const statusData = this.state.statusData
@@ -61,7 +73,28 @@ export default class Simulator extends React.Component<Props, State> {
         return +percent.toFixed(0)
     }
 
+    get currentVar() {
+        if (this.state.statusData.length === 0) return 0
+
+        const statusData = this.state.statusData
+        const variation = statusData[statusData.length - 1].var
+
+        const percent = (variation - 1) * 100
+        return +percent.toFixed(2)
+    }
+
     //#region Lifecycle
+
+    componentDidMount() {
+        ConsoleService.addCallback('simulator', message => {
+            this.setState(state => ({
+                messages: [
+                    ...state.messages,
+                    isString(message) ? message : JSON.stringify(message)
+                ]
+            }))
+        })
+    }
 
     componentDidUpdate() {
         (window as any).server = this.state.server
@@ -101,15 +134,7 @@ export default class Simulator extends React.Component<Props, State> {
                 result: null
             })
 
-            ConsoleService.addCallback('simulator', message => {
-                this.setState(state => ({
-                    messages: [
-                        ...state.messages,
-                        JSON.stringify(message)
-                    ]
-                }))
-            })
-            ConsoleService.disableConsole()
+            ConsoleService.enableConsole()
 
             // eslint-disable-next-line
             eval(this.state.code)
@@ -129,8 +154,7 @@ export default class Simulator extends React.Component<Props, State> {
     }
 
     handleEnd = () => {
-        ConsoleService.removeCallback('simulator')
-        ConsoleService.enableConsole()
+        ConsoleService.disableConsole()
 
         this.setState({ running: false })
 
@@ -172,7 +196,7 @@ export default class Simulator extends React.Component<Props, State> {
 
         const server = this.state.server
 
-        server.off(TradingInputMessage.Data).on(TradingInputMessage.Data, (data: ITradingData<IStockData>) => {
+        server.off(TradingInputMessage.Data).on(TradingInputMessage.Data, (data: ITradingData<T>) => {
             this.setState(state => ({
                 statusData: [...state.statusData, data.status]
             }))
@@ -181,7 +205,7 @@ export default class Simulator extends React.Component<Props, State> {
         server.off(TradingInputMessage.End).on(TradingInputMessage.End, this.handleEnd)
 
         server.off(TradingInputMessage.Result)
-            .on(TradingInputMessage.Result, (result: IClientResult<IStockData>) => {
+            .on(TradingInputMessage.Result, (result: IClientResult<T>) => {
                 this.setState({ result })
             })
     }
@@ -191,19 +215,25 @@ export default class Simulator extends React.Component<Props, State> {
     render() {
         return (
             <>
-                <Title level={1} style={{ paddingTop: '1rem' }}>Simulator</Title>
+                <Title level={1}>Simulator</Title>
 
                 <Input.Group style={{ margin: '.7rem 0' }}>
                     <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, { xs: 8, sm: 16, md: 24, lg: 0 }]}>
                         <Col xs={24} sm={12} md={6}>
-                            <Input addonBefore="Ticker" type="text" value={this.state.data.tickers[0]} onChange={e => this.updateData({ tickers: [e.target.value] })} />
+                            <Input
+                                addonBefore="Ticker"
+                                type="text"
+                                value={this.state.data.tickers.join(',')}
+                                onChange={e => this.updateData({ tickers: e.target.value.split(',') })}
+                            />
                         </Col>
                         <Col xs={24} sm={12} md={6}>
                             <InputNumberMask
                                 maskProps={{
                                     prefix: 'R$', thousandSeparator: '.', decimalSeparator: ',',
+                                    decimalScale: 2, fixedDecimalScale: true,
                                     defaultValue: this.state.data.balance,
-                                    onValueChange: (values) => this.updateData({ balance: values.floatValue })
+                                    onValueChange: values => this.updateData({ balance: values.floatValue })
                                 }}
                                 inputProps={{
                                     addonBefore: 'Balance',
@@ -212,29 +242,23 @@ export default class Simulator extends React.Component<Props, State> {
                             />
                         </Col>
                         <Col xs={24} sm={12} md={6}>
-                            <InputMask
-                                maskProps={{
-                                    mask: '9999-99-99T99:99:99',
-                                    value: this.state.data.start,
-                                    onChange: e => this.updateData({ start: e.target.value })
-                                }}
-                                inputProps={{
-                                    addonBefore: 'Start',
-                                    type: 'text',
-                                }}
+                            <DatePickerAddon
+                                addonBefore="Start"
+                                allowClear={false}
+                                value={moment(this.state.data.start)}
+                                onChange={(date, dateStr) => this.updateData({
+                                    start: `${dateStr}T00:00:00`
+                                })}
                             />
                         </Col>
                         <Col xs={24} sm={12} md={6}>
-                            <InputMask
-                                maskProps={{
-                                    mask: '9999-99-99T99:99:99',
-                                    value: this.state.data.end,
-                                    onChange: e => this.updateData({ end: e.target.value })
-                                }}
-                                inputProps={{
-                                    addonBefore: 'End',
-                                    type: 'text',
-                                }}
+                            <DatePickerAddon
+                                addonBefore="End"
+                                allowClear={false}
+                                value={moment(this.state.data.end)}
+                                onChange={(date, dateStr) => this.updateData({
+                                    end: `${dateStr}T00:00:00`
+                                })}
                             />
                         </Col>
                     </Row>
@@ -251,59 +275,38 @@ export default class Simulator extends React.Component<Props, State> {
                     <Col xs={24} lg={12}>
                         <Row>
                             <Col xs={24}>
-                                <div
-                                    className="well-dark"
-                                    style={{ height: '245px', marginBottom: '5px', display: 'flex' }}
-                                >
-                                    {this.state.running ? (
-                                        <div style={{ display: 'flex', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-                                            <div style={{ width: '150px' }}>
-                                                <CircularProgressbarWithChildren
-                                                    value={this.progressPercent}
-                                                    strokeWidth={4}
-                                                    background
-                                                    backgroundPadding={2}
-                                                    styles={buildStyles({
-                                                        strokeLinecap: 'butt', // 'round' | 'butt'
-                                                        pathTransitionDuration: 0.1,
-                                                        textSize: '16px', pathColor: 'white',
-                                                        trailColor: 'transparent', backgroundColor: '#1890ff'
-                                                    })}
-                                                >
-                                                    <span
-                                                        style={{
-                                                            fontSize: '1.75rem', fontWeight: 500,
-                                                            color: 'white', cursor: 'default'
-                                                        }}
-                                                    >{this.progressPercent}</span>
-                                                </CircularProgressbarWithChildren>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                            <div>
-                                                Balance: {this.state.result?.status.balance}
-                                                <br />
-                                                Net: {this.state.result?.status.net}
-                                                <br />
-                                                Profit: {this.state.result?.status.profit}
-                                                <br />
-                                                Var: {this.state.result?.status.var}
-                                                <br />
-                                                Portfolio: {JSON.stringify(this.state.result?.status.portfolio)}
-                                            </div>
-                                        )}
-                                </div>
+                                <ResultsPanel<T>
+                                    className="output-box box-dark"
+                                    style={{ marginBottom: '5px' }}
+                                    running={this.state.running}
+                                    totalSteps={this.totalSteps}
+                                    progress={this.currentProgress}
+                                    variation={this.currentVar}
+                                    result={this.state.result}
+                                />
                             </Col>
                             <Col xs={24}>
-                                <ConsoleReadOnly className="well-dark" value={this.state.messages} style={{ height: '245px', marginTop: '5px' }} />
+                                <ConsoleReadOnly
+                                    className="output-box box-dark"
+                                    style={{ marginTop: '5px', boxShadow: 'none' }}
+                                    value={this.state.messages}
+                                />
                             </Col>
                         </Row>
                     </Col>
                 </Row>
 
-                <div style={{ margin: '0.7rem -.3rem' }}>
-                    <Button style={{ margin: '0 .3rem 0 .3rem' }} disabled={this.state.running} onClick={this.handleStart}>Start</Button>
-                    <Button style={{ margin: '0 .3rem 0 .3rem' }} disabled={!this.state.running} onClick={this.handleStop}>Stop</Button>
+                <div style={{ margin: '0.7rem -.3rem 0' }}>
+                    <Button
+                        style={{ margin: '0 .3rem' }}
+                        disabled={this.state.running}
+                        onClick={this.handleStart}
+                    >Start</Button>
+                    <Button
+                        style={{ margin: '0 .3rem' }}
+                        disabled={!this.state.running}
+                        onClick={this.handleStop}
+                    >Stop</Button>
                 </div>
             </>
         );

@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import Home from './modules/home/scenes/Home';
 import AppLayout from './modules/layout/AppLayout';
 import Simulator from './modules/trading/scenes/Simulator';
 
@@ -12,6 +13,9 @@ export default class App extends React.Component {
             <AppLayout>
               <Switch>
                 <Route path="/" exact>
+                  <Home />
+                </Route>
+                <Route path="/simulator" exact>
                   <Simulator />
                 </Route>
               </Switch>

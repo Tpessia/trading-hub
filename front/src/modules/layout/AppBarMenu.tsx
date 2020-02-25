@@ -31,11 +31,8 @@ export default class AppBarMenu extends React.Component<Props> {
                 <Menu.Item key="/">
                     <Link to="/">Home</Link>
                 </Menu.Item>
-                <Menu.Item key="/about">
-                    <Link to="/about">About</Link>
-                </Menu.Item>
-                <Menu.Item key="/users">
-                    <Link to="/users">Users</Link>
+                <Menu.Item key="/simulator">
+                    <Link to="/simulator">Simulator</Link>
                 </Menu.Item>
             </Menu>
         );

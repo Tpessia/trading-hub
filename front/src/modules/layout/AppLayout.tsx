@@ -3,6 +3,7 @@ import React from 'react';
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import AppBarMenu from './AppBarMenu';
 import './AppLayout.scss';
+import logo from '../../assets/logo64.png';
 
 const { Header, Content, Footer } = Layout;
 
@@ -64,7 +65,9 @@ class AppLayout extends React.Component<RouteComponentProps, State> {
             padding: this.isMobile ? '0 0 0 30px' : '0 50px'
           }}
         >
-          <div className="logo" />
+          <div style={{ float: 'left' }}>
+            <img src={logo} alt="Logo" style={{ float: 'left' }} />
+          </div>
           {this.isMobile ? (
             <Button
               type="primary"
@@ -95,7 +98,7 @@ class AppLayout extends React.Component<RouteComponentProps, State> {
         </Drawer>
 
         <Content className="content" style={{ marginTop: '64px' }}>
-          <div style={{ minHeight: 'calc(100vh - 69px - 64px)' }}>
+          <div style={{ minHeight: 'calc(100vh - 69px - 64px - 1rem)', overflowX: 'hidden', marginTop: '1rem' }}>
             {this.props.children}
           </div>
         </Content>
