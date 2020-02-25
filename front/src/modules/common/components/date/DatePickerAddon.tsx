@@ -1,6 +1,7 @@
 import { DatePicker } from 'antd';
 import { DatePickerProps } from 'antd/lib/date-picker/interface';
 import React from "react";
+import './DatePickerAddon.scss';
 
 export interface DatePickerAddonProps extends DatePickerProps {
     addonBefore?: React.ReactNode

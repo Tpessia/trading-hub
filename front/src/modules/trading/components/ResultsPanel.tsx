@@ -26,23 +26,39 @@ export default class ResultsPanel<T extends IStockData> extends React.Component<
         showPortfolio: false
     }
 
+    lastUpdate = new Date()
     skipedUpdates = 0
 
     shouldComponentUpdate(nextProps: Props<T>, nextState: State) {
-        if (this.props.running !== nextProps.running)
-            return true
-
-        if (this.state.showPortfolio !== nextState.showPortfolio)
-            return true
-
-        const stepsToUpdate = Math.floor(this.props.totalSteps / 100)
-        if (this.skipedUpdates < stepsToUpdate) {
+        const skipUpdate = () => {
+            console.log('skip')
             this.skipedUpdates++
             return false
         }
 
-        this.skipedUpdates = 0
-        return true
+        const update = () => {
+            console.log('update')
+            this.lastUpdate = new Date()
+            this.skipedUpdates = 0
+            return true
+        }
+
+        if (this.props.running !== nextProps.running)
+            return update()
+
+        if (this.state.showPortfolio !== nextState.showPortfolio)
+            return update()
+
+        const secsPastUpdate = ((new Date()).getTime() - this.lastUpdate.getTime()) / 1000
+        console.log('secsPastUpdate',secsPastUpdate)
+        if (secsPastUpdate > 5)
+            return update()
+
+        const stepsToUpdate = Math.floor(this.props.totalSteps / 100)
+        if (this.skipedUpdates >= stepsToUpdate)
+            return update()
+
+        return skipUpdate()
     }
 
     formatCurrency = (num: number | undefined) => num !== undefined ? format(num, { code: 'BRL' }) : format(0, { code: 'BRL' })

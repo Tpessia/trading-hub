@@ -4,6 +4,7 @@ import { RouteComponentProps, withRouter } from "react-router-dom";
 import AppBarMenu from './AppBarMenu';
 import './AppLayout.scss';
 import logo from '../../assets/logo64.png';
+import variables from '../../variables';
 
 const { Header, Content, Footer } = Layout;
 
@@ -21,7 +22,7 @@ class AppLayout extends React.Component<RouteComponentProps, State> {
   }
 
   get isMobile() {
-    return this.state.width < 576
+    return this.state.width < variables.sizeMd
   }
 
   componentDidMount() {
@@ -62,7 +63,7 @@ class AppLayout extends React.Component<RouteComponentProps, State> {
             position: 'fixed',
             zIndex: 1000,
             width: '100%',
-            padding: this.isMobile ? '0 0 0 30px' : '0 50px'
+            padding: this.isMobile ? '0 0 0 15px' : '0 50px'
           }}
         >
           <div style={{ float: 'left' }}>

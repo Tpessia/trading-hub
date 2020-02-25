@@ -62,7 +62,8 @@ export class TradingGateway implements OnGatewayConnection, OnGatewayDisconnect 
     }
 
     @SubscribeMessage(TradingInputMessage.Action)
-    onNextResult(client: Socket, message: ITradingAction): void {
+    async onNextResult(client: Socket, message: ITradingAction): Promise<void> {
+        await new Promise((res,rej) => setTimeout(res, 2000))
         try {
             const warnings = this.tradingService.takeAction(client.id, message)
             warnings.forEach(e => client.emit(TradingOutputMessage.Warning, e))
