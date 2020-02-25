@@ -31,13 +31,11 @@ export default class ResultsPanel<T extends IStockData> extends React.Component<
 
     shouldComponentUpdate(nextProps: Props<T>, nextState: State) {
         const skipUpdate = () => {
-            console.log('skip')
             this.skipedUpdates++
             return false
         }
 
         const update = () => {
-            console.log('update')
             this.lastUpdate = new Date()
             this.skipedUpdates = 0
             return true
@@ -50,7 +48,6 @@ export default class ResultsPanel<T extends IStockData> extends React.Component<
             return update()
 
         const secsPastUpdate = ((new Date()).getTime() - this.lastUpdate.getTime()) / 1000
-        console.log('secsPastUpdate',secsPastUpdate)
         if (secsPastUpdate > 5)
             return update()
 
