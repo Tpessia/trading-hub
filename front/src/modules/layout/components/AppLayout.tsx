@@ -1,11 +1,11 @@
 import { Button, Drawer, Icon, Layout } from 'antd';
 import React from 'react';
-import { RouteComponentProps, withRouter } from "react-router-dom";
-import AppBarMenu from './AppBarMenu';
-import './AppLayout.scss';
+import { Link, RouteComponentProps, withRouter } from "react-router-dom";
 import logo from '../../../assets/logo64.png';
 import variables from '../../../variables';
 import LayoutContext from '../context/LayoutContext';
+import AppBarMenu from './AppBarMenu';
+import './AppLayout.scss';
 
 const { Header, Content, Footer } = Layout;
 
@@ -75,9 +75,11 @@ class AppLayout extends React.Component<RouteComponentProps, State> {
               padding: this.isMobile ? '0 0 0 15px' : '0 50px'
             }}
           >
-            <div style={{ float: 'left' }}>
-              <img src={logo} alt="Logo" style={{ float: 'left' }} />
-            </div>
+            <span style={{ float: 'left' }}>
+              <Link to="/">
+                <img src={logo} alt="Logo" style={{ float: 'left' }} />
+              </Link>
+            </span>
             {this.isMobile ? (
               <Button
                 type="primary"
