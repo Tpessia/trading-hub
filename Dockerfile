@@ -3,7 +3,7 @@ FROM node:10-alpine AS build
 WORKDIR /app/front
 
 COPY ./front .
-RUN npm install
+RUN npm install --only=prod
 
 RUN npm run build
 
@@ -11,7 +11,7 @@ RUN npm run build
 WORKDIR /app/back
 
 COPY ./back .
-RUN npm install
+RUN npm install --only=prod
 
 RUN npx -p @nestjs/cli nest build
 
