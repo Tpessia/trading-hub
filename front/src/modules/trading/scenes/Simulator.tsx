@@ -1,4 +1,5 @@
 import { Button, Col, Input, message, Row, Typography } from 'antd';
+import { cloneDeep } from 'lodash-es';
 import moment from 'moment';
 import React from 'react';
 import 'react-circular-progressbar/dist/styles.css';
@@ -148,10 +149,16 @@ export default class Simulator<T extends IStockData = IStockData> extends React.
             // eslint-disable-next-line
             eval(this.state.code)
 
-            this.state.server.emit(TradingOutputMessage.Start, this.state.data)
+            this.state.server.emit(TradingOutputMessage.Start, this.mapStartData(this.state.data))
         } else {
             this.handleError('No connection found!')
         }
+    }
+
+    mapStartData = (startData: ITradingStart) => {
+        const data = cloneDeep(startData)
+        data.tickers = data.tickers.map(e => e.trim())
+        return data
     }
 
     handleStop = () => {
