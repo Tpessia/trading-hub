@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { parse } from 'papaparse';
+import StockMarket from 'src/trading/models/StockMarket';
 import axiosService from '../../common/services/axios.service';
 import { getUnixTime, getUnixTimeGMT } from '../../common/utils/date.utils';
 import IStockResult from '../models/common/IStockResult';
@@ -9,6 +10,7 @@ import IYahooParamsV7, { YahooEventV7, YahooIntervalV7 } from '../models/yahoo/v
 import IYahooApiResponseV8 from '../models/yahoo/v8/IYahooApiResponseV8';
 import IYahooDataV8 from '../models/yahoo/v8/IYahooDataV8';
 import IYahooParamsV8, { YahooIntervalV8 } from '../models/yahoo/v8/IYahooParamsV8';
+import YahooStockMarketSuffix from '../models/yahoo/YahooStockMarketSuffix';
 import { ValidatorService } from './validator.service';
 
 @Injectable()
@@ -20,8 +22,10 @@ export class YahooService {
     //#region API V8
 
     // Inspired by: https://github.com/ranaroussi/yfinance/blob/master/yfinance/base.py
-    async getHistoricalV8(ticker: string, start: Date, end: Date, interval: YahooIntervalV8): Promise<IStockResult<IYahooDataV8>> {
-        this.validateRequestV8(ticker, start, end, interval)
+    async getHistoricalV8(ticker: string, market: StockMarket, start: Date, end: Date, interval: YahooIntervalV8): Promise<IStockResult<IYahooDataV8>> {
+        this.validateRequestV8(ticker, market, start, end, interval)
+
+        const suffix = YahooStockMarketSuffix[market]
 
         const params: IYahooParamsV8 = {
             interval,
@@ -31,7 +35,7 @@ export class YahooService {
             includePrePost: true,
         }
 
-        const apiResult = (await axiosService.get<IYahooApiResponseV8>(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}.SA`, { params })).data
+        const apiResult = (await axiosService.get<IYahooApiResponseV8>(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}${suffix}`, { params })).data
 
         const dataResult = this.mapHistDataV8(apiResult)
 
@@ -40,7 +44,7 @@ export class YahooService {
         return result;
     }
 
-    private validateRequestV8(ticker: string, start: Date, end: Date, interval: YahooIntervalV8): void {
+    private validateRequestV8(ticker: string, market: StockMarket, start: Date, end: Date, interval: YahooIntervalV8): void {
         let dayRange = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
 
         if (interval === YahooIntervalV8.Min1 && dayRange > 7) {
@@ -96,13 +100,15 @@ export class YahooService {
     //#region API V7
 
     // Inspired by: https://github.com/AndrewRPorter/yahoo-historical/blob/master/yahoo_historical/fetch.py
-    async getHistoricalV7(ticker: string, start: Date, end: Date, interval: YahooIntervalV7): Promise<IStockResult<IYahooDataV7>> {
+    async getHistoricalV7(ticker: string, market: StockMarket, start: Date, end: Date, interval: YahooIntervalV7): Promise<IStockResult<IYahooDataV7>> {
         const authResult = (await axiosService.get<string>(`https://finance.yahoo.com/quote/${ticker}.SA/history`))
         const cookie: string | null = authResult.headers['set-cookie']?.[0]?.match(/B=(.*?);/)?.[1]
         const crumb = authResult.data.match(/"CrumbStore":\{"crumb":"(.*?)"\}/)?.[1]?.replace('\\u002F', '/')
 
         if (!cookie || !crumb)
             throw new Error('Failed to obtain cookie and/or crumb')
+
+        const suffix = YahooStockMarketSuffix[market]
 
         const params: IYahooParamsV7 = {
             interval,
@@ -112,7 +118,7 @@ export class YahooService {
             period2: getUnixTimeGMT(end)
         }
 
-        const apiResult = (await axiosService.get<string>(`https://query1.finance.yahoo.com/v7/finance/download/${ticker}.SA`, {
+        const apiResult = (await axiosService.get<string>(`https://query1.finance.yahoo.com/v7/finance/download/${ticker}${suffix}`, {
             params,
             headers: { Cookie: `B=${cookie};` }
         })).data

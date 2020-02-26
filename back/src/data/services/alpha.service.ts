@@ -2,7 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { pick } from 'lodash';
 import { AlphaInterval } from 'src/data/models/alpha/AlphaConfig';
 import IAlphaData from 'src/data/models/alpha/IAlphaData';
+import StockMarket from 'src/trading/models/StockMarket';
 import axiosService from '../../common/services/axios.service';
+import AlphaStockMarketSuffix from '../models/alpha/AlphaStockMarketSuffix';
 import IAlphaApiResponse, { IAlphaApiData } from '../models/alpha/IAlphaApiResponse';
 import IStockResult from '../models/common/IStockResult';
 import { ValidatorService } from './validator.service';
@@ -13,8 +15,10 @@ export class AlphaService {
 
     private readonly apiKey = 'WU8VTI1IRD58LFV5';
 
-    getHistorical = async (ticker: string, start: Date, end: Date, interval: AlphaInterval): Promise<IStockResult<IAlphaData>> => {
-        const apiResult = (await axiosService.get<IAlphaApiResponse>(`https://www.alphavantage.co/query?apikey=${this.apiKey}&function=${AlphaInterval.Daily}&symbol=${ticker}.SAO&datatype=json&outputsize=full`)).data
+    getHistorical = async (ticker: string, market: StockMarket, start: Date, end: Date, interval: AlphaInterval): Promise<IStockResult<IAlphaData>> => {
+        const suffix = AlphaStockMarketSuffix[market]
+
+        const apiResult = (await axiosService.get<IAlphaApiResponse>(`https://www.alphavantage.co/query?apikey=${this.apiKey}&function=${AlphaInterval.Daily}&symbol=${ticker}${suffix}&datatype=json&outputsize=full`)).data
 
         const filterResult = this.filterDate(apiResult, start, end)
 

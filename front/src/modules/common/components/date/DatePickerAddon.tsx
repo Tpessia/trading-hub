@@ -9,8 +9,11 @@ export interface DatePickerAddonProps extends DatePickerProps {
 
 export default class DatePickerAddon extends React.Component<DatePickerAddonProps> {
     render() {
+        const { addonBefore, ...rest } = this.props
+
         const picker = (
             <DatePicker
+                {...rest}
                 style={{
                     borderTopLeftRadius: 0,
                     borderBottomLeftRadius: 0,
@@ -20,18 +23,17 @@ export default class DatePickerAddon extends React.Component<DatePickerAddonProp
                     width: '100%',
                     marginBottom: '0',
                     textAlign: 'inherit',
-                    ...this.props.style
+                    ...rest.style
                 }}
-                {...this.props}
             />
         )
 
         return (
             <>
-                {this.props.addonBefore ? (
+                {addonBefore ? (
                     <span className="ant-input-group-wrapper">
                         <span className="ant-input-wrapper ant-input-group">
-                            <div className="ant-input-group-addon">{this.props.addonBefore}</div>
+                            <div className="ant-input-group-addon">{addonBefore}</div>
                             {picker}
                         </span>
                     </span>

@@ -120,7 +120,7 @@ class AppLayout extends React.Component<RouteComponentProps, State> {
           </Content>
 
           <Footer style={{ textAlign: 'center' }}>
-            Trading Hub ©2020 Created by <a href="https://github.com/Tpessia/" target="_blank" rel="noopener noreferrer">Thiago Pessia</a>
+            Trading Hub ©2020 Created by <a style={{ fontWeight: 500 }} href="https://github.com/Tpessia/" target="_blank" rel="noopener noreferrer">Thiago Pessia</a>
           </Footer>
         </Layout>
       </LayoutContext.Provider>

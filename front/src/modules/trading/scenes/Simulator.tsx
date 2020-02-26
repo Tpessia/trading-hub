@@ -1,4 +1,4 @@
-import { Button, Col, Input, message, Row, Typography } from 'antd';
+import { Button, Col, Input, message, Row, Select, Typography } from 'antd';
 import { cloneDeep } from 'lodash-es';
 import moment from 'moment';
 import React from 'react';
@@ -9,6 +9,7 @@ import CodeEditor from "../../common/components/CodeEditor";
 import ConsoleReadOnly from '../../common/components/ConsoleReadOnly';
 import DatePickerAddon from '../../common/components/date/DatePickerAddon';
 import InputNumberMask from '../../common/components/input/InputNumberMask';
+import SelectAddon from '../../common/components/select/SelectAddon';
 import ConfigService from '../../common/services/ConfigService';
 import ConsoleService from '../../common/services/ConsoleService';
 import { getDateOnly, getFirstOfYear, getIsoString } from '../../common/utils/date.utils';
@@ -20,8 +21,10 @@ import ITradingData from "../models/dtos/ITradingData";
 import ITradingStart from '../models/dtos/ITradingStart';
 import { TradingInputMessage, TradingOutputMessage } from '../models/dtos/TradingMessage';
 import { initialCode } from '../models/InitialCode';
+import StockMarket, { StockMarketNames } from '../models/StockMarket';
 import './Simulator.scss';
 
+const { Option } = Select;
 const { Title } = Typography
 
 interface Props {
@@ -43,6 +46,7 @@ export default class Simulator<T extends IStockData = IStockData> extends React.
     state: State<T> = {
         data: {
             tickers: ['PETR4', 'ITUB4'],
+            market: StockMarket.BR,
             start: getIsoString(getFirstOfYear(new Date())),
             end: getIsoString(getDateOnly(new Date())),
             balance: 100000
@@ -252,6 +256,7 @@ export default class Simulator<T extends IStockData = IStockData> extends React.
     render() {
         const buttons = (<>
             <Button
+                type="primary"
                 style={{ margin: '0 .3rem' }}
                 disabled={this.state.running}
                 onClick={this.handleStart}
@@ -270,16 +275,30 @@ export default class Simulator<T extends IStockData = IStockData> extends React.
                         <Title level={1}>Simulator</Title>
 
                         <Input.Group style={{ margin: '.7rem 0' }}>
-                            <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, { xs: 8, sm: 16, md: 24, lg: 0 }]}>
-                                <Col xs={24} sm={12} md={6}>
+                            <Row gutter={[{ xs: 8, sm: 16 }, { xs: 8, sm: 16 }]}>
+                                <Col xs={24} sm={12} xl={4}>
                                     <Input
-                                        addonBefore="Ticker"
+                                        addonBefore="Tickers"
                                         type="text"
                                         value={this.state.data.tickers.join(',')}
                                         onChange={e => this.updateData({ tickers: e.target.value.split(',') })}
                                     />
                                 </Col>
-                                <Col xs={24} sm={12} md={6}>
+                                <Col xs={24} sm={12} xl={4}>
+                                    <SelectAddon
+                                        addonBefore="Market"
+                                        defaultValue={StockMarket.BR}
+                                        onChange={market => this.updateData({ market })}
+                                    >
+                                        {
+                                            Object.entries(StockMarketNames)
+                                                .map(e => <Option key={e[0]} value={e[0]}>{e[1]}</Option>)
+                                        }
+                                    </SelectAddon>
+                                    {/* <Select defaultValue="lucy" style={{ width: '100%' }}>
+                                    </Select> */}
+                                </Col>
+                                <Col xs={24} sm={24} xl={4}>
                                     <InputNumberMask
                                         maskProps={{
                                             prefix: 'R$', thousandSeparator: '.', decimalSeparator: ',',
@@ -293,7 +312,7 @@ export default class Simulator<T extends IStockData = IStockData> extends React.
                                         }}
                                     />
                                 </Col>
-                                <Col xs={24} sm={12} md={6}>
+                                <Col xs={24} sm={12} xl={6}>
                                     <DatePickerAddon
                                         addonBefore="Start"
                                         allowClear={false}
@@ -303,7 +322,7 @@ export default class Simulator<T extends IStockData = IStockData> extends React.
                                         })}
                                     />
                                 </Col>
-                                <Col xs={24} sm={12} md={6}>
+                                <Col xs={24} sm={12} xl={6}>
                                     <DatePickerAddon
                                         addonBefore="End"
                                         allowClear={false}

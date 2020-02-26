@@ -11,6 +11,7 @@ import ITradingAction, { TradingActionType } from "../models/ITradingAction";
 import ITradingData from "../models/ITradingData";
 import ITradingStart from "../models/ITradingStart";
 import { ITradingPortfolio } from "../models/ITradingStatus";
+import StockMarket from "../models/StockMarket";
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class TradingService<T extends IStockData = IYahooData> {
@@ -54,19 +55,20 @@ export class TradingService<T extends IStockData = IYahooData> {
         const clientData = this.getClient(clientId)
 
         if (clientData) {
-            clientData.initialData = await this.getInitialData(new Date(startMsg.start), new Date(startMsg.end), startMsg.tickers)
+            clientData.initialData = await this.getInitialData(startMsg.tickers, startMsg.market, new Date(startMsg.start), new Date(startMsg.end))
             clientData.status.progress.total = Object.values(clientData.initialData)
                 .reduce((acc, val) => acc + val.data.length, 0)
         }
 
     }
 
-    async getInitialData(start: Date, end: Date, tickers: string[]) {
+    async getInitialData(tickers: string[], market: StockMarket, start: Date, end: Date) {
         const requests: Promise<IStockResult<T>>[] = []
 
         tickers.forEach(ticker => {
             const request = this.yahooService.getHistorical(
                 ticker,
+                market,
                 new Date(start),
                 new Date(end),
                 YahooInterval.Day1
