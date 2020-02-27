@@ -140,7 +140,7 @@ export class TradingService<T extends IStockData = IYahooData> {
         const mktData = clientData?.currentData?.data
         const status = clientData.status
         const portfolio = status.portfolio
-        const price = mktData.Close
+        const price = mktData.close
 
         const calcPosition = () => {
             const portfolioValue = Object.values(portfolio).reduce((acc, val) => acc + val.size * price, 0)

@@ -18,8 +18,8 @@ server.on('data', (data) => {
         })
 })
 
-server.on('error', (result) => { })
+server.on('result', (result) => { })
 
 server.on('warning', (result) => { })
 
-server.on('result', (result) => { })`
+server.on('fail', (result) => { })`

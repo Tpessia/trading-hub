@@ -77,16 +77,16 @@ export class YahooService {
             const ratio = adjClose / close
 
             const timeData: IYahooDataV8 = {
-                Date: new Date(result.timestamp[i] * 1000),
-                Volume: volume,
-                Open: open,
-                High: high,
-                Low: low,
-                Close: close,
-                AdjOpen: open * ratio,
-                AdjHigh: high * ratio,
-                AdjLow: low * ratio,
-                AdjClose: adjClose
+                date: new Date(result.timestamp[i] * 1000),
+                volume: volume,
+                open: open,
+                high: high,
+                low: low,
+                close: close,
+                adjOpen: open * ratio,
+                adjHigh: high * ratio,
+                adjLow: low * ratio,
+                adjClose: adjClose
             }
 
             newData.push(timeData)
@@ -146,16 +146,16 @@ export class YahooService {
         const ratio = adjClose / close
 
         return {
-            Date: new Date(`${data.Date}T00:00:00`),
-            Volume: volume,
-            Open: open,
-            High: high,
-            Low: low,
-            Close: close,
-            AdjOpen: open * ratio,
-            AdjHigh: high * ratio,
-            AdjLow: low * ratio,
-            AdjClose: adjClose
+            date: new Date(`${data.Date}T00:00:00`),
+            volume: volume,
+            open: open,
+            high: high,
+            low: low,
+            close: close,
+            adjOpen: open * ratio,
+            adjHigh: high * ratio,
+            adjLow: low * ratio,
+            adjClose: adjClose
         }
     }
 

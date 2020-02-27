@@ -22,7 +22,7 @@ export class ValidatorService {
             if (!valid)
                 result.errors.push({
                     type: StockErrorType.Missing,
-                    date: e.Date,
+                    date: e.date,
                     message: e
                 })
 

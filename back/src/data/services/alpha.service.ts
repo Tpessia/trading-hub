@@ -60,18 +60,18 @@ export class AlphaService {
         const ratio = adjClose / close
 
         return {
-            Date: new Date(`${dateStr}T00:00:00Z`),
-            Volume: volume,
-            Open: open,
-            High: high,
-            Low: low,
-            Close: close,
-            AdjOpen: open * ratio,
-            AdjHigh: high * ratio,
-            AdjLow: low * ratio,
-            AdjClose: adjClose,
-            DividendAmount: dividendAmount,
-            SplitCoefficient: splitCoefficient
+            date: new Date(`${dateStr}T00:00:00Z`),
+            volume: volume,
+            open: open,
+            high: high,
+            low: low,
+            close: close,
+            adjOpen: open * ratio,
+            adjHigh: high * ratio,
+            adjLow: low * ratio,
+            adjClose: adjClose,
+            dividendAmount: dividendAmount,
+            splitCoefficient: splitCoefficient
         }
     }
 }

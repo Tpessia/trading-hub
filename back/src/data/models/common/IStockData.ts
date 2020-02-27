@@ -1,12 +1,12 @@
 export default interface IStockData {
-    Date: Date,
-    Volume: number,
-    Open: number,
-    High: number,
-    Low: number,
-    Close: number,
-    AdjOpen: number,
-    AdjHigh: number,
-    AdjLow: number,
-    AdjClose: number
+    date: Date,
+    volume: number,
+    open: number,
+    high: number,
+    low: number,
+    close: number,
+    adjOpen: number,
+    adjHigh: number,
+    adjLow: number,
+    adjClose: number
 }
