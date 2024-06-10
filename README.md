@@ -8,3 +8,9 @@
 4. Insert your strategy code using JavaScript (use "loadScript(url)" to inject a dependencie and "console.print(message)" to log on the Console Panel)
 5. Press Start
 6. Check the results on the Results Panel
+
+## Docker
+
+docker build -f Dockerfile -t trading-hub .
+docker run -it --rm --name trading-hub -p 8080:8080 trading-hub
+docker exec -it trading-hub /bin/sh

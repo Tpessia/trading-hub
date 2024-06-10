@@ -26,7 +26,7 @@ async function bootstrap() {
   app.use(compression())
 
   // Start App
-  await app.listen(process.env.NODE_ENV === 'production' ? 80 : 3001);
+  await app.listen(process.env.NODE_ENV === 'production' ? 8080 : 3001);
 }
 
 bootstrap();
